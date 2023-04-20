@@ -1,0 +1,83 @@
+package org.uv.Proctica08CC.controllers;
+
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.uv.Proctica08CC.Repository.EmpleadoRepository;
+import org.uv.Proctica08CC.dtos.DTOEmpleado;
+import org.uv.Proctica08CC.models.Empleado;
+
+@RestController
+@RequestMapping(path = "/api")
+public class EmpleadoController {
+    @Autowired
+    EmpleadoRepository empRep;
+    
+    @GetMapping("/hello")
+    public String hello(){
+        return "Hola mundo";
+    }
+    
+    @GetMapping("/empleado/{id}")
+    public DTOEmpleado findById(@PathVariable("id") int id){
+        Optional<Empleado> res= empRep.findById(id);
+        DTOEmpleado emp= null;
+        
+        if(res.isPresent()){
+            emp= new DTOEmpleado();
+            emp.setClave(res.get().getClave());
+            emp.setNombre(res.get().getNombre());
+            emp.setDireccion(res.get().getDireccion());
+            emp.setTelefono(res.get().getTelefono());
+        }
+        
+        return emp;
+    }
+    
+    @GetMapping("/empleado")
+    public List<DTOEmpleado> findAll(){
+        List<DTOEmpleado> emps= new ArrayList<>();
+        
+        Iterable<Empleado> res= empRep.findAll();
+        for (Iterator<Empleado> iterator = res.iterator(); iterator.hasNext();) {
+            Empleado emp= iterator.next();
+            DTOEmpleado dtoEmp = new DTOEmpleado();
+            dtoEmp.setClave(emp.getClave());
+            dtoEmp.setNombre(emp.getNombre());
+            dtoEmp.setDireccion(emp.getDireccion());
+            dtoEmp.setTelefono(emp.getTelefono());
+            emps.add(dtoEmp);
+            
+        }
+        
+        return emps;
+    }
+    
+    @PostMapping("/empleado")
+    public DTOEmpleado create(@RequestBody Empleado empleado){
+        Empleado emp= new Empleado();
+        emp.setClave(empleado.getClave());
+        emp.setNombre(empleado.getNombre());
+        emp.setDireccion(empleado.getDireccion());
+        emp.setTelefono(empleado.getTelefono());
+        Empleado empNew= empRep.save(emp);
+        
+        DTOEmpleado dtoEmpNew= new DTOEmpleado();
+        dtoEmpNew.setClave(empNew.getClave());
+        dtoEmpNew.setNombre(empNew.getNombre());
+        dtoEmpNew.setDireccion(empNew.getDireccion());
+        dtoEmpNew.setTelefono(empNew.getTelefono());
+        
+        return dtoEmpNew;
+    }
+    
+}
